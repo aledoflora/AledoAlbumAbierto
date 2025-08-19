@@ -48,8 +48,8 @@ const storage = multer.diskStorage({
 const upload = multer({ 
   storage: storage,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB máximo por archivo
-    files: 5 // Máximo 5 archivos
+    fileSize: 25 * 1024 * 1024, // 25MB máximo por archivo
+    files: 10 // Máximo 10 archivos
   },
   fileFilter: function (req, file, cb) {
     const allowedTypes = /jpeg|jpg|png|gif/;
@@ -423,7 +423,7 @@ function obtenerInfoFoto(archivo, carpeta, categoria = null) {
 // ===== RUTAS API =====
 
 // Ruta para manejar el formulario de participación
-app.post('/api/participa', upload.array('fotos', 5), async (req, res) => {
+app.post('/api/participa', upload.array('fotos', 10), async (req, res) => {
   console.log('Nueva participación recibida');
   try {
 
