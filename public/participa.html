@@ -161,6 +161,76 @@
       display: none;
     }
 
+    .archivos-seleccionados {
+      margin-top: 15px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border: 1px solid #e9ecef;
+    }
+
+    .archivos-seleccionados h4 {
+      margin: 0 0 10px 0;
+      color: #333;
+      font-size: 1.1em;
+    }
+
+    .archivo-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      background: white;
+      border-radius: 5px;
+      margin-bottom: 8px;
+      border: 1px solid #dee2e6;
+    }
+
+    .archivo-info {
+      flex: 1;
+    }
+
+    .archivo-nombre {
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 2px;
+    }
+
+    .archivo-tamaño {
+      font-size: 0.9em;
+      color: #666;
+    }
+
+    .eliminar-archivo {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 0.8em;
+      margin-left: 10px;
+    }
+
+    .eliminar-archivo:hover {
+      background: #c82333;
+    }
+
+    .limpiar-btn {
+      background: #6c757d;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9em;
+      margin-top: 10px;
+    }
+
+    .limpiar-btn:hover {
+      background: #5a6268;
+    }
+
     .submit-btn {
       background: #111;
       color: #fff;
@@ -365,7 +435,12 @@
           <div class="file-input" onclick="document.getElementById('fotos').click()">
             <input type="file" id="fotos" name="fotos" accept="image/*" multiple required>
             <p>Haz clic aquí para seleccionar tus fotos</p>
-            <p style="font-size: 0.9em; color: #666;">Formatos aceptados: JPG, PNG, GIF (máximo 5 archivos)</p>
+            <p style="font-size: 0.9em; color: #666;">Formatos aceptados: JPG, PNG, GIF (máximo 10 archivos, 25MB cada uno)</p>
+          </div>
+          <div id="archivos-seleccionados" class="archivos-seleccionados" style="display: none;">
+            <h4>Archivos seleccionados:</h4>
+            <div id="lista-archivos"></div>
+            <button type="button" onclick="limpiarArchivos()" class="limpiar-btn">🗑️ Limpiar selección</button>
           </div>
         </div>
 
@@ -400,21 +475,62 @@
     // Función para mostrar archivos seleccionados
     function mostrarArchivosSeleccionados(e) {
       const fileInput = e.target;
-      const fileInputContainer = fileInput.parentElement;
       const files = fileInput.files;
+      const archivosSeleccionados = document.getElementById('archivos-seleccionados');
+      const listaArchivos = document.getElementById('lista-archivos');
       
       if (files && files.length > 0) {
-        let fileNames = '';
-        for (let i = 0; i < files.length; i++) {
-          fileNames += files[i].name + (i < files.length - 1 ? ', ' : '');
-        }
+        // Mostrar la sección de archivos seleccionados
+        archivosSeleccionados.style.display = 'block';
         
-        // Actualizar solo el texto, no recrear el input
-        const existingText = fileInputContainer.querySelector('p');
-        if (existingText) {
-          existingText.innerHTML = `<strong>Archivos seleccionados:</strong> ${fileNames}`;
+        // Limpiar lista anterior
+        listaArchivos.innerHTML = '';
+        
+        // Crear elementos para cada archivo
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const archivoItem = document.createElement('div');
+          archivoItem.className = 'archivo-item';
+          
+          const tamaño = (file.size / 1024 / 1024).toFixed(2);
+          
+          archivoItem.innerHTML = `
+            <div class="archivo-info">
+              <div class="archivo-nombre">${file.name}</div>
+              <div class="archivo-tamaño">${tamaño} MB</div>
+            </div>
+            <button type="button" class="eliminar-archivo" onclick="eliminarArchivo(${i})">❌</button>
+          `;
+          
+          listaArchivos.appendChild(archivoItem);
         }
+      } else {
+        archivosSeleccionados.style.display = 'none';
       }
+    }
+
+    // Función para eliminar un archivo específico
+    function eliminarArchivo(index) {
+      const fileInput = document.getElementById('fotos');
+      const files = Array.from(fileInput.files);
+      
+      // Eliminar el archivo del array
+      files.splice(index, 1);
+      
+      // Crear un nuevo FileList (no es posible modificar directamente)
+      const dt = new DataTransfer();
+      files.forEach(file => dt.items.add(file));
+      fileInput.files = dt.files;
+      
+      // Actualizar la visualización
+      mostrarArchivosSeleccionados({ target: fileInput });
+    }
+
+    // Función para limpiar todos los archivos
+    function limpiarArchivos() {
+      const fileInput = document.getElementById('fotos');
+      fileInput.value = '';
+      document.getElementById('archivos-seleccionados').style.display = 'none';
     }
 
     // Agregar event listener inicial
