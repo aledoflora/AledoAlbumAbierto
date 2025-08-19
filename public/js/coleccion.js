@@ -12,7 +12,8 @@ async function cargarCarpetas() {
   try {
     console.log('Iniciando carga de carpetas...');
     
-    const serverUrl = 'http://localhost:3000';
+    // Usar la URL actual del servidor (funciona tanto en local como en producción)
+    const serverUrl = window.location.origin;
     
     // Test del servidor
     const testResponse = await fetch(`${serverUrl}/api/test`);
@@ -84,7 +85,7 @@ function crearTarjetaCarpeta(carpeta) {
 async function cargarSubcarpetas(categoria) {
   try {
     categoriaActual = categoria;
-    const serverUrl = 'http://localhost:3000';
+    const serverUrl = window.location.origin;
     const response = await fetch(`${serverUrl}/api/coleccion/subcarpetas/${categoria}`);
     if (response.ok) {
       const data = await response.json();
@@ -115,7 +116,7 @@ async function cargarSubcarpetas(categoria) {
 async function cargarFotosCarpeta(carpeta) {
   try {
     carpetaActual = carpeta;
-    const serverUrl = 'http://localhost:3000';
+    const serverUrl = window.location.origin;
     const response = await fetch(`${serverUrl}/api/coleccion/fotos/${carpeta}`);
     if (response.ok) {
       const data = await response.json();

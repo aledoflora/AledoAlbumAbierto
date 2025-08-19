@@ -417,9 +417,8 @@ function obtenerInfoFoto(archivo, carpeta, categoria = null) {
 
 // Ruta para manejar el formulario de participación
 app.post('/api/participa', upload.array('fotos', 5), async (req, res) => {
-  console.log('🚀 INICIO: Nueva petición POST a /api/participa');
+  console.log('Nueva participación recibida');
   try {
-    console.log('📝 Procesando nueva participación...');
 
     // Validar datos requeridos
     const { nombre, email, descripcion } = req.body;
@@ -458,7 +457,7 @@ app.post('/api/participa', upload.array('fotos', 5), async (req, res) => {
     const archivosGuardados = [];
     for (const file of req.files) {
       try {
-        console.log('📤 Procesando archivo:', file.originalname);
+        console.log('Procesando archivo:', file.originalname);
         
         // Subir archivo a Cloudinary
         const cloudinaryResult = await subirArchivoACloudinary(file.path, `aledo-album/${participanteId}`);
@@ -482,7 +481,6 @@ app.post('/api/participa', upload.array('fotos', 5), async (req, res) => {
         
         // Eliminar archivo temporal
         fs.unlinkSync(file.path);
-        console.log('🗑️ Archivo temporal eliminado:', file.path);
         
       } catch (error) {
         console.error('❌ Error procesando archivo:', file.originalname, error);
@@ -495,7 +493,6 @@ app.post('/api/participa', upload.array('fotos', 5), async (req, res) => {
     }
 
     // Crear registro de la participación
-    console.log('📝 Creando objeto de participación...');
     const participacion = {
       id: participanteId,
       fecha: new Date().toISOString(),
@@ -511,7 +508,7 @@ app.post('/api/participa', upload.array('fotos', 5), async (req, res) => {
       archivos: archivosGuardados,
       estado: 'enviado'
     };
-    console.log('✅ Objeto de participación creado:', participacion.id);
+    console.log('Participación creada:', participacion.id);
 
     // Guardar registro en archivo JSON
     const registrosPath = path.join(__dirname, 'data', 'participaciones.json');
@@ -524,23 +521,16 @@ app.post('/api/participa', upload.array('fotos', 5), async (req, res) => {
     if (fs.existsSync(registrosPath)) {
       try {
         participaciones = JSON.parse(fs.readFileSync(registrosPath, 'utf8'));
-        console.log('📄 Archivo de participaciones cargado:', participaciones.length, 'participaciones existentes');
       } catch (error) {
         console.error('Error leyendo archivo de participaciones:', error);
         participaciones = [];
       }
-    } else {
-      console.log('📄 Creando nuevo archivo de participaciones');
     }
 
-    console.log('📊 Participaciones existentes:', participaciones.length);
     participaciones.push(participacion);
-    console.log('💾 Guardando participación en JSON...');
     try {
       fs.writeFileSync(registrosPath, JSON.stringify(participaciones, null, 2));
-      console.log('✅ Participación guardada correctamente en JSON');
-      console.log('📁 Ruta del archivo:', registrosPath);
-      console.log('📊 Tamaño del archivo:', fs.statSync(registrosPath).size, 'bytes');
+      console.log('Participación guardada en JSON');
       
       // Sincronizar con GitHub en segundo plano
       sincronizarConGitHub().then(sincronizado => {
@@ -555,25 +545,20 @@ app.post('/api/participa', upload.array('fotos', 5), async (req, res) => {
       throw writeError;
     }
 
-    console.log('🎉 NUEVA PARTICIPACIÓN!');
-    console.log(`📧 Email: ${participacion.email}`);
-    console.log(`👤 Nombre: ${participacion.nombre}`);
-    console.log(`📸 Archivos: ${archivosGuardados.length}`);
-    console.log('─────────────────────────────────────');
+    console.log(`Nueva participación: ${participacion.nombre} (${participacion.email}) - ${archivosGuardados.length} archivos`);
 
     // Enviar emails de notificación
-    console.log('📧 Intentando enviar emails...');
     Promise.all([
       enviarEmailNotificacion(participacion),
       enviarEmailConfirmacion(participacion)
     ]).then(([notificacionEnviada, confirmacionEnviada]) => {
       if (notificacionEnviada && confirmacionEnviada) {
-        console.log('📧 Emails enviados correctamente');
+        console.log('Emails enviados correctamente');
       } else {
-        console.log('⚠️  Algunos emails no se pudieron enviar');
+        console.log('Algunos emails no se pudieron enviar');
       }
     }).catch(error => {
-      console.log('⚠️  Error enviando emails:', error.message);
+      console.log('Error enviando emails:', error.message);
     });
 
     res.json({
@@ -582,7 +567,7 @@ app.post('/api/participa', upload.array('fotos', 5), async (req, res) => {
       participacionId: participacion.id
     });
 
-    console.log('✅ FINALIZADO: Procesamiento exitoso de participación');
+    console.log('Procesamiento completado');
   } catch (error) {
     console.error('❌ ERROR: Error procesando participación:', error);
     console.error('❌ Stack trace:', error.stack);
