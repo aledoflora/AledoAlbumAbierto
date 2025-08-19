@@ -6,6 +6,9 @@ const cors = require('cors');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
 const cloudinary = require('cloudinary').v2;
+const { exec } = require('child_process');
+const util = require('util');
+const execAsync = util.promisify(exec);
 // Configurar variables de entorno básicas si no existe .env
 try {
   require('dotenv').config();
@@ -104,6 +107,34 @@ if (fs.existsSync(publicPath)) {
 const thumbnailCache = new Map();
 
 // ===== FUNCIONES AUXILIARES =====
+
+// Función para sincronizar JSON con GitHub
+async function sincronizarConGitHub() {
+  try {
+    console.log('🔄 Sincronizando JSON con GitHub...');
+    
+    // Cambiar al directorio del proyecto
+    const projectDir = path.join(__dirname, '../..');
+    
+    // Agregar cambios
+    await execAsync('git add server/data/participaciones.json', { cwd: projectDir });
+    console.log('✅ Archivo agregado a Git');
+    
+    // Hacer commit
+    await execAsync('git commit -m "Actualizar participaciones - ' + new Date().toISOString() + '"', { cwd: projectDir });
+    console.log('✅ Commit realizado');
+    
+    // Hacer push
+    await execAsync('git push origin master', { cwd: projectDir });
+    console.log('✅ Push realizado a GitHub');
+    
+    console.log('✅ JSON sincronizado con GitHub correctamente');
+    return true;
+  } catch (error) {
+    console.error('❌ Error sincronizando con GitHub:', error.message);
+    return false;
+  }
+}
 
 // Función para subir archivo a Cloudinary
 async function subirArchivoACloudinary(filePath, carpeta = 'aledo-album') {
@@ -510,6 +541,15 @@ app.post('/api/participa', upload.array('fotos', 5), async (req, res) => {
       console.log('✅ Participación guardada correctamente en JSON');
       console.log('📁 Ruta del archivo:', registrosPath);
       console.log('📊 Tamaño del archivo:', fs.statSync(registrosPath).size, 'bytes');
+      
+      // Sincronizar con GitHub en segundo plano
+      sincronizarConGitHub().then(sincronizado => {
+        if (sincronizado) {
+          console.log('✅ JSON sincronizado con GitHub');
+        } else {
+          console.log('⚠️ No se pudo sincronizar con GitHub, pero la participación se guardó localmente');
+        }
+      });
     } catch (writeError) {
       console.error('❌ Error escribiendo archivo JSON:', writeError);
       throw writeError;
