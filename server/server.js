@@ -108,6 +108,41 @@ const thumbnailCache = new Map();
 
 
 
+// Función para hacer backup del JSON a Cloudinary
+async function hacerBackupJSON() {
+  try {
+    const registrosPath = path.join(__dirname, 'data', 'participaciones.json');
+    if (!fs.existsSync(registrosPath)) {
+      console.log('No hay archivo JSON para hacer backup');
+      return false;
+    }
+
+    // Crear un archivo temporal con timestamp
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const backupFileName = `participaciones-backup-${timestamp}.json`;
+    const tempPath = path.join(__dirname, 'uploads', backupFileName);
+    
+    // Copiar el JSON a un archivo temporal
+    fs.copyFileSync(registrosPath, tempPath);
+    
+    // Subir a Cloudinary
+    const resultado = await cloudinary.uploader.upload(tempPath, {
+      folder: 'aledo-album/backups',
+      resource_type: 'raw',
+      public_id: `participaciones-${timestamp}`
+    });
+    
+    // Eliminar archivo temporal
+    fs.unlinkSync(tempPath);
+    
+    console.log('Backup JSON creado en Cloudinary:', resultado.secure_url);
+    return resultado.secure_url;
+  } catch (error) {
+    console.error('Error creando backup JSON:', error);
+    return false;
+  }
+}
+
 // Función para subir archivo a Cloudinary
 async function subirArchivoACloudinary(filePath, carpeta = 'aledo-album') {
   try {
@@ -504,6 +539,15 @@ app.post('/api/participa', upload.array('fotos', 5), async (req, res) => {
       fs.writeFileSync(registrosPath, JSON.stringify(participaciones, null, 2));
       console.log('Participación guardada en JSON');
       
+      // Hacer backup automático cada 5 participaciones
+      if (participaciones.length % 5 === 0) {
+        hacerBackupJSON().then(backupUrl => {
+          if (backupUrl) {
+            console.log('Backup automático creado:', backupUrl);
+          }
+        });
+      }
+      
 
     } catch (writeError) {
       console.error('❌ Error escribiendo archivo JSON:', writeError);
@@ -571,6 +615,60 @@ app.get('/api/admin/participaciones', (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error al leer participaciones'
+    });
+  }
+});
+
+// Ruta para hacer backup manual (ADMIN)
+app.post('/api/admin/backup', async (req, res) => {
+  try {
+    const backupUrl = await hacerBackupJSON();
+    if (backupUrl) {
+      res.json({
+        success: true,
+        message: 'Backup creado correctamente',
+        backupUrl: backupUrl
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: 'Error al crear backup'
+      });
+    }
+  } catch (error) {
+    console.error('Error en backup manual:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al crear backup'
+    });
+  }
+});
+
+// Ruta para obtener lista de backups (ADMIN)
+app.get('/api/admin/backups', async (req, res) => {
+  try {
+    const resultado = await cloudinary.api.resources({
+      type: 'upload',
+      prefix: 'aledo-album/backups/',
+      max_results: 50
+    });
+    
+    const backups = resultado.resources.map(resource => ({
+      url: resource.secure_url,
+      fecha: resource.created_at,
+      nombre: resource.public_id,
+      tamaño: resource.bytes
+    }));
+    
+    res.json({
+      success: true,
+      backups: backups
+    });
+  } catch (error) {
+    console.error('Error obteniendo backups:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener backups'
     });
   }
 });

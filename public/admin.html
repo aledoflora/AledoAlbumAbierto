@@ -188,7 +188,11 @@
         </div>
 
         <div class="content">
-            <button class="refresh-btn" onclick="cargarParticipaciones()">🔄 Actualizar</button>
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button class="refresh-btn" onclick="cargarParticipaciones()">🔄 Actualizar</button>
+                <button class="refresh-btn" onclick="crearBackup()" style="background: #28a745;">💾 Crear Backup</button>
+                <button class="refresh-btn" onclick="cargarBackups()" style="background: #ffc107; color: #333;">📋 Ver Backups</button>
+            </div>
             
             <div class="stats">
                 <div class="stat-card">
@@ -316,6 +320,57 @@
                 console.error('Error:', error);
                 alert('Error al eliminar la participación: ' + error.message);
             }
+        }
+
+        async function crearBackup() {
+            try {
+                const serverUrl = window.location.origin;
+                const response = await fetch(`${serverUrl}/api/admin/backup`, {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    alert('Backup creado correctamente\nURL: ' + data.backupUrl);
+                } else {
+                    throw new Error('Error al crear backup');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al crear backup: ' + error.message);
+            }
+        }
+
+        async function cargarBackups() {
+            try {
+                const serverUrl = window.location.origin;
+                const response = await fetch(`${serverUrl}/api/admin/backups`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    mostrarBackups(data.backups);
+                } else {
+                    throw new Error('Error al cargar backups');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar backups: ' + error.message);
+            }
+        }
+
+        function mostrarBackups(backups) {
+            if (backups.length === 0) {
+                alert('No hay backups disponibles');
+                return;
+            }
+
+            const backupsList = backups.map(backup => {
+                const fecha = new Date(backup.fecha).toLocaleString('es-ES');
+                const tamaño = (backup.tamaño / 1024).toFixed(2) + ' KB';
+                return `📄 ${fecha} (${tamaño})\n🔗 ${backup.url}`;
+            }).join('\n\n');
+
+            alert('Backups disponibles:\n\n' + backupsList);
         }
     </script>
 </body>
