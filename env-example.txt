@@ -1,0 +1,7 @@
+# Configuración de email para notificaciones
+EMAIL_USER=tu-email@gmail.com
+EMAIL_PASS=tu-contraseña-de-aplicación
+
+# Puerto del servidor (opcional, por defecto 3000)
+PORT=3000
+

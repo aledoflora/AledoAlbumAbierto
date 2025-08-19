@@ -1,0 +1,39 @@
+{
+  "tags": {
+    "categorias": [
+      "semana-santa",
+      "navidad", 
+      "fiestas-patronales",
+      "vida-cotidiana",
+      "tradiciones",
+      "calles-plazas",
+      "familias",
+      "fiestas",
+      "trabajo",
+      "eventos",
+      "otros"
+    ],
+    "localizaciones": [
+      "plaza-mayor",
+      "iglesia",
+      "entorno",
+      "aledo"
+    ],
+    "decadas": [
+      "1950s",
+      "1960s", 
+      "1970s",
+      "1980s",
+      "1990s",
+      "2000s",
+      "2010s",
+      "2020s"
+    ],
+    "estados": [
+      "pendiente",
+      "publicada",
+      "archivada"
+    ]
+  }
+}
+

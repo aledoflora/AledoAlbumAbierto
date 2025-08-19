@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Participa - Aledo Álbum Abierto</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/images/logos/logo_simple.png" />
+  <link rel="shortcut icon" type="image/png" href="assets/images/logos/logo_simple.png" />
+  <link rel="apple-touch-icon" href="assets/images/logos/logo_simple.png" />
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      color: #111;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      justify-items: center;
+      background: #fff;
+      border-bottom: 2px solid #111;
+      padding: 20px 20px;
+      line-height: 0;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100px;
+      width: 240px;
+      grid-column: 2;
+    }
+
+    .nav-left,
+    .nav-right {
+      display: flex;
+      gap: 50px;
+      height: 100px;
+      align-items: center;
+    }
+
+    .nav-left {
+      justify-content: flex-end;
+      grid-column: 1;
+      padding-right: 40px;
+    }
+
+    .nav-right {
+      justify-content: flex-start;
+      grid-column: 3;
+      padding-left: 40px;
+    }
+
+    .nav-left a,
+    .nav-right a {
+      text-decoration: none;
+      color: #111;
+      font-weight: bold;
+      font-size: 1.8em;
+      letter-spacing: 1px;
+      transition: color 0.2s;
+    }
+
+    .nav-left a:hover,
+    .nav-right a:hover {
+      color: #555;
+    }
+
+
+
+    main {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .intro-text {
+      text-align: center;
+      margin-bottom: 50px;
+      line-height: 1.6;
+    }
+
+    .intro-text h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      color: #111;
+    }
+
+    .intro-text p {
+      font-size: 1.2em;
+      color: #333;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .form-container {
+      background: #f9f9f9;
+      padding: 40px;
+      border-radius: 10px;
+      border: 2px solid #111;
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      font-size: 1.1em;
+      color: #111;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      font-size: 1em;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #111;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .file-input {
+      border: 2px dashed #111;
+      padding: 20px;
+      text-align: center;
+      background: #fff;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .file-input:hover {
+      background: #f0f0f0;
+    }
+
+    .file-input input[type="file"] {
+      display: none;
+    }
+
+    .submit-btn {
+      background: #111;
+      color: #fff;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1.2em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      width: 100%;
+    }
+
+    .submit-btn:hover {
+      background: #333;
+    }
+
+    .info-box {
+      background: #e8f4fd;
+      border: 2px solid #111;
+      padding: 20px;
+      margin-bottom: 30px;
+      border-radius: 5px;
+    }
+
+    .info-box h3 {
+      margin-top: 0;
+      color: #111;
+    }
+
+    .info-box ul {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+
+    .info-box li {
+      margin-bottom: 5px;
+    }
+
+    /* Estilos para el modal */
+    .modal {
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: 15% auto;
+      padding: 0;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      background: #111;
+      color: white;
+      padding: 20px;
+      border-radius: 10px 10px 0 0;
+      text-align: center;
+    }
+
+    .modal-header h2 {
+      font-size: 1.8em;
+      margin: 0;
+    }
+
+    .modal-body {
+      padding: 30px;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .modal-body p {
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .modal-footer {
+      padding: 20px;
+      text-align: center;
+      border-top: 1px solid #eee;
+    }
+
+    .modal-btn {
+      background: #111;
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 1em;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .modal-btn:hover {
+      background: #333;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-left">
+      <a href="proyecto.html">PROYECTO</a>
+              <a href="coleccion.html">COLECCIÓN</a>
+    </div>
+    <div class="logo">
+      <a href="index.html">
+        <img src="assets/images/logos/logo_simple.png" alt="Logo AAA" style="max-width: 240px; height: auto;" />
+      </a>
+    </div>
+    <div class="nav-right">
+      <a href="index.html#folcsonomias">FOLCSONOMÍAS</a>
+      <a href="index.html#participa">PARTICIPA</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="intro-text">
+      <h1>PARTICIPA EN LA MEMORIA DE ALEDO</h1>
+      <p>Ayúdanos a construir el álbum colectivo de Aledo. Comparte tus fotos antiguas y contribuye a preservar la memoria histórica de nuestro pueblo. Cada imagen es una pieza fundamental de nuestra historia común.</p>
+    </div>
+
+    <div class="info-box">
+      <h3>¿Qué tipo de fotos buscamos?</h3>
+      <ul>
+        <li>Fotografías antiguas de Aledo (calles, plazas, edificios)</li>
+        <li>Retratos familiares y de vecinos</li>
+        <li>Fiestas y celebraciones tradicionales</li>
+        <li>Actividades laborales y oficios</li>
+        <li>Eventos históricos y momentos significativos</li>
+        <li>Cualquier imagen que capture la esencia de Aledo</li>
+      </ul>
+    </div>
+
+    <div class="form-container">
+      <form id="participa-form">
+        <div class="form-group">
+          <label for="nombre">Nombre completo *</label>
+          <input type="text" id="nombre" name="nombre" required>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+
+        <div class="form-group">
+          <label for="telefono">Teléfono</label>
+          <input type="tel" id="telefono" name="telefono">
+        </div>
+
+        <div class="form-group">
+          <label for="fecha-foto">Fecha aproximada de la foto</label>
+          <input type="text" id="fecha-foto" name="fecha-foto" placeholder="Ej: 1970, década de los 80, etc.">
+        </div>
+
+        <div class="form-group">
+          <label for="descripcion">Descripción de la foto *</label>
+          <textarea id="descripcion" name="descripcion" placeholder="Cuéntanos qué muestra la foto, quiénes aparecen, dónde fue tomada..." required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="categoria">Categoría</label>
+          <select id="categoria" name="categoria">
+            <option value="">Selecciona una categoría</option>
+            <option value="calles-plazas">Calles y plazas</option>
+            <option value="familias">Familias y retratos</option>
+            <option value="fiestas">Fiestas y celebraciones</option>
+            <option value="trabajo">Trabajo y oficios</option>
+            <option value="eventos">Eventos históricos</option>
+            <option value="otros">Otros</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="fotos">Subir fotos *</label>
+          <div class="file-input" onclick="document.getElementById('fotos').click()">
+            <input type="file" id="fotos" name="fotos" accept="image/*" multiple required>
+            <p>Haz clic aquí para seleccionar tus fotos</p>
+            <p style="font-size: 0.9em; color: #666;">Formatos aceptados: JPG, PNG, GIF (máximo 5 archivos)</p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="comentarios">Comentarios adicionales</label>
+          <textarea id="comentarios" name="comentarios" placeholder="Cualquier información adicional que quieras compartir..."></textarea>
+        </div>
+
+        <button type="submit" class="submit-btn">ENVIAR FOTOS</button>
+      </form>
+    </div>
+  </main>
+
+  <!-- Modal de agradecimiento -->
+  <div id="thank-you-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>¡Gracias por participar!</h2>
+      </div>
+      <div class="modal-body">
+        <p>Tu contribución es muy valiosa para preservar la memoria histórica de Aledo.</p>
+        <p>Hemos recibido tus fotos correctamente y pronto serán revisadas para incluirlas en nuestro álbum colectivo.</p>
+        <p><strong>¡Gracias por ser parte de esta iniciativa!</strong></p>
+      </div>
+      <div class="modal-footer">
+        <button onclick="closeThankYouModal()" class="modal-btn">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Función para mostrar archivos seleccionados
+    function mostrarArchivosSeleccionados(e) {
+      const fileInput = e.target;
+      const fileInputContainer = fileInput.parentElement;
+      const files = fileInput.files;
+      
+      if (files && files.length > 0) {
+        let fileNames = '';
+        for (let i = 0; i < files.length; i++) {
+          fileNames += files[i].name + (i < files.length - 1 ? ', ' : '');
+        }
+        
+        // Actualizar solo el texto, no recrear el input
+        const existingText = fileInputContainer.querySelector('p');
+        if (existingText) {
+          existingText.innerHTML = `<strong>Archivos seleccionados:</strong> ${fileNames}`;
+        }
+      }
+    }
+
+    // Agregar event listener inicial
+    document.addEventListener('DOMContentLoaded', function() {
+      const fileInput = document.getElementById('fotos');
+      if (fileInput) {
+        fileInput.addEventListener('change', mostrarArchivosSeleccionados);
+      }
+    });
+
+    // Manejo del formulario
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('participa-form');
+      if (form) {
+        form.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          
+          console.log('Formulario enviado');
+          
+          const formData = new FormData(this);
+          
+          // Verificar que se han seleccionado archivos
+          const fileInput = document.getElementById('fotos');
+          if (!fileInput.files || fileInput.files.length === 0) {
+            alert('Por favor, selecciona al menos una imagen');
+            return;
+          }
+          
+          console.log('Archivos seleccionados:', fileInput.files.length);
+          
+                      try {
+              // Mostrar indicador de carga
+              const submitBtn = document.querySelector('.submit-btn');
+              const originalText = submitBtn.textContent;
+              submitBtn.textContent = 'ENVIANDO...';
+              submitBtn.disabled = true;
+              
+              console.log('Enviando datos al servidor...');
+              
+              const response = await fetch('/api/participa', {
+                method: 'POST',
+                body: formData
+              });
+              
+              console.log('Respuesta del servidor:', response.status);
+              
+              const result = await response.json();
+              console.log('Resultado:', result);
+              
+              if (result.success) {
+                showThankYouModal();
+                // Resetear formulario
+                this.reset();
+                // Restaurar texto original
+                const fileInputContainer = document.querySelector('.file-input');
+                const existingText = fileInputContainer.querySelector('p');
+                if (existingText) {
+                  existingText.innerHTML = 'Haz clic aquí para seleccionar tus fotos';
+                }
+              } else {
+                // Mostrar errores de validación de forma más elegante
+                let errorMessage = result.message;
+                if (result.errors && result.errors.length > 0) {
+                  errorMessage = result.errors.join('\n');
+                }
+                alert('Error: ' + errorMessage);
+              }
+              
+            } catch (error) {
+              console.error('Error:', error);
+              alert('Error al enviar el formulario. Por favor, inténtalo de nuevo.');
+            } finally {
+              // Restaurar botón
+              const submitBtn = document.querySelector('.submit-btn');
+              submitBtn.textContent = 'ENVIAR FOTOS';
+              submitBtn.disabled = false;
+            }
+        });
+      }
+    });
+
+    // Funciones para el modal
+    function showThankYouModal() {
+      const modal = document.getElementById('thank-you-modal');
+      modal.style.display = 'flex';
+    }
+
+    function closeThankYouModal() {
+      const modal = document.getElementById('thank-you-modal');
+      modal.style.display = 'none';
+    }
+
+    // Cerrar modal al hacer clic fuera de él
+    document.getElementById('thank-you-modal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeThankYouModal();
+      }
+    });
+  </script>
+</body>
+</html> 

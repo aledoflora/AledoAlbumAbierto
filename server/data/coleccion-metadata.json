@@ -1,0 +1,72 @@
+{
+  "coleccion": {
+    "titulo": "Colección Histórica de Aledo",
+    "descripcion": "Archivo digital de fotografías históricas de Aledo",
+    "version": "1.0",
+    "ultimaActualizacion": "2024-01-15",
+    "totalFotos": 0,
+    "categorias": [
+      {
+        "id": "semana-santa",
+        "nombre": "Semana Santa",
+        "descripcion": "Fotografías de las celebraciones de Semana Santa",
+        "carpeta": "semana-santa",
+        "totalFotos": 0
+      },
+      {
+        "id": "navidad",
+        "nombre": "Navidad",
+        "descripcion": "Fotografías de las celebraciones navideñas",
+        "carpeta": "navidad",
+        "totalFotos": 0
+      },
+      {
+        "id": "fiestas-patronales",
+        "nombre": "Fiestas Patronales",
+        "descripcion": "Fotografías de las fiestas en honor al patrón",
+        "carpeta": "fiestas-patronales",
+        "totalFotos": 0
+      },
+      {
+        "id": "vida-cotidiana",
+        "nombre": "Vida Cotidiana",
+        "descripcion": "Fotografías de la vida diaria en Aledo",
+        "carpeta": "vida-cotidiana",
+        "totalFotos": 0
+      },
+      {
+        "id": "tradiciones",
+        "nombre": "Tradiciones",
+        "descripcion": "Fotografías de tradiciones y costumbres",
+        "carpeta": "tradiciones",
+        "totalFotos": 0
+      }
+    ],
+    "decadas": [
+      "1950s", "1960s", "1970s", "1980s", "1990s", "2000s", "2010s", "2020s"
+    ],
+    "localizaciones": [
+      {
+        "id": "plaza-mayor",
+        "nombre": "Plaza Mayor",
+        "descripcion": "Plaza principal del pueblo"
+      },
+      {
+        "id": "iglesia",
+        "nombre": "Iglesia",
+        "descripcion": "Iglesia de Santa María"
+      },
+      {
+        "id": "calles",
+        "nombre": "Calles",
+        "descripcion": "Calles del pueblo"
+      },
+      {
+        "id": "entorno",
+        "nombre": "Entorno",
+        "descripcion": "Entorno natural y paisaje"
+      }
+    ],
+    "fotografos": []
+  }
+} 

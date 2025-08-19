@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>El Proyecto - Aledo Álbum Abierto</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/images/logos/logo_simple.png" />
+  <link rel="shortcut icon" type="image/png" href="assets/images/logos/logo_simple.png" />
+  <link rel="apple-touch-icon" href="assets/images/logos/logo_simple.png" />
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      color: #111;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      justify-items: center;
+      background: #fff;
+      border-bottom: 2px solid #111;
+      padding: 20px 20px;
+      line-height: 0;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100px;
+      width: 240px;
+      grid-column: 2;
+    }
+
+    .logo a {
+      text-decoration: none;
+      display: block;
+    }
+
+    .logo img {
+      max-width: 240px;
+      height: auto;
+      transition: opacity 0.2s ease;
+    }
+
+    .logo a:hover img {
+      opacity: 0.8;
+    }
+
+    .nav-left,
+    .nav-right {
+      display: flex;
+      gap: 50px;
+      height: 100px;
+      align-items: center;
+    }
+
+    .nav-left {
+      justify-content: flex-end;
+      grid-column: 1;
+      padding-right: 40px;
+    }
+
+    .nav-right {
+      justify-content: flex-start;
+      grid-column: 3;
+      padding-left: 40px;
+    }
+
+    .nav-left a,
+    .nav-right a {
+      text-decoration: none;
+      color: #111;
+      font-weight: bold;
+      font-size: 1.8em;
+      letter-spacing: 1px;
+      transition: color 0.2s;
+    }
+
+    .nav-left a:hover,
+    .nav-right a:hover {
+      color: #555;
+    }
+
+    /* Contenido principal */
+    main {
+      padding: 80px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+
+    .proyecto-header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .proyecto-header h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      color: #111;
+    }
+
+    .proyecto-header .separator {
+      width: 100px;
+      height: 3px;
+      background: #111;
+      margin: 0 auto;
+    }
+
+    .proyecto-content {
+      font-size: 1.1em;
+      text-align: justify;
+    }
+
+    .proyecto-content p {
+      margin-bottom: 25px;
+    }
+
+    /* Footer */
+    footer {
+      background: #fff;
+      border-top: 2px solid #111;
+      padding: 30px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      margin-top: 50px;
+    }
+
+    .footer-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: #111;
+      font-weight: bold;
+      font-size: 1.1em;
+      letter-spacing: 0.5px;
+      transition: color 0.2s ease;
+    }
+
+    .footer-link:hover {
+      color: #555;
+    }
+
+    .footer-link i {
+      font-size: 1.2em;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .nav-left,
+      .nav-right {
+        gap: 20px;
+        font-size: 1.4em;
+      }
+      
+      .nav-left {
+        padding-right: 20px;
+      }
+      
+      .nav-right {
+        padding-left: 20px;
+      }
+      
+      main {
+        padding: 40px 15px;
+      }
+      
+      .proyecto-header h1 {
+        font-size: 2em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-left">
+      <a href="proyecto.html">PROYECTO</a>
+      <a href="coleccion.html">COLECCIÓN</a>
+    </div>
+    <div class="logo">
+      <a href="index.html">
+        <img src="assets/images/logos/logo_simple.png" alt="Logo AAA" style="max-width: 240px; height: auto;" />
+      </a>
+    </div>
+    <div class="nav-right">
+      <a href="#folcsonomias">FOLCSONOMÍAS</a>
+      <a href="participa.html">PARTICIPA</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="proyecto-header">
+      <h1>EL PROYECTO</h1>
+      <div class="separator"></div>
+    </div>
+    
+    <div class="proyecto-content">
+      <p>
+        <strong>Aledo Álbum Abierto</strong> es un archivo fotográfico digital, accesible y público que testimonia la evolución social, cultural y urbana del municipio a través de sus imágenes. Esta iniciativa se enfoca en la <strong>preservación y difusión de la memoria visual colectiva</strong> del pueblo de Aledo mediante la recopilación, digitalización y documentación de fotografías antiguas que abarcan desde finales del siglo XIX hasta finales del siglo XX.
+      </p>
+      
+      <p>
+        El carácter <strong>abierto y colectivo</strong> es clave, pues los fondos del archivo se constituyen con las digitalizaciones de las fotografías cedidas por los habitantes del municipio. Así, se garantiza la <strong>conservación digital</strong> de estos documentos que poseen un gran valor histórico y afectivo. Además, el registro de los testimonios directos de sus autores y protagonistas mediante grabaciones aporta contexto y profundidad a las imágenes y pone en valor la <strong>cultura oral</strong> y su importancia para la memoria histórica.
+      </p>
+      
+      <p>
+        Este archivo colectivo digital pretende constituir una herramienta para la <strong>divulgación histórica</strong>, pero también busca reforzar el <strong>vínculo intergeneracional</strong>, fomentar la participación ciudadana, sensibilizar sobre la importancia de conservar el patrimonio inmaterial local y resaltar aquellas personas que han permitido hacer que el pueblo sea.
+      </p>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <a href="https://www.instagram.com/aledoalbumabierto" target="_blank" class="footer-link">
+      <i class="fab fa-instagram"></i>
+      @aledoalbumabierto
+    </a>
+    <a href="tel:+34722688040" class="footer-link">
+      <i class="fas fa-phone"></i>
+      +34 722 688 040
+    </a>
+  </footer>
+
+  <!-- Font Awesome para iconos -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</body>
+</html>
