@@ -484,8 +484,8 @@
       try {
         console.log('Iniciando carga de carpetas...');
         
-        // Siempre usar el puerto 3000 para las API
-        const serverUrl = 'http://localhost:3000';
+        // Usar la URL actual del servidor (funciona tanto en local como en producción)
+        const serverUrl = window.location.origin;
         
         // Primero probar la ruta de test
         const testResponse = await fetch(`${serverUrl}/api/test`);
@@ -554,7 +554,7 @@
     async function cargarSubcarpetas(categoria) {
       try {
         categoriaActual = categoria;
-        const serverUrl = 'http://localhost:3000';
+        const serverUrl = window.location.origin;
         const response = await fetch(`${serverUrl}/api/coleccion/subcarpetas/${categoria}`);
         if (response.ok) {
           const data = await response.json();
@@ -585,7 +585,7 @@
       try {
         console.log('Cargando fotos de carpeta:', carpeta);
         carpetaActual = carpeta;
-        const serverUrl = 'http://localhost:3000';
+        const serverUrl = window.location.origin;
         const response = await fetch(`${serverUrl}/api/coleccion/fotos/${carpeta}`);
         console.log('Respuesta del servidor para fotos:', response.status, response.statusText);
         

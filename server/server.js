@@ -532,14 +532,16 @@ app.post('/api/participa', upload.array('fotos', 5), async (req, res) => {
       fs.writeFileSync(registrosPath, JSON.stringify(participaciones, null, 2));
       console.log('Participación guardada en JSON');
       
-      // Sincronizar con GitHub en segundo plano
-      sincronizarConGitHub().then(sincronizado => {
-        if (sincronizado) {
-          console.log('✅ JSON sincronizado con GitHub');
-        } else {
-          console.log('⚠️ No se pudo sincronizar con GitHub, pero la participación se guardó localmente');
-        }
-      });
+      // Sincronizar con GitHub solo en desarrollo local
+      if (process.env.NODE_ENV === 'development') {
+        sincronizarConGitHub().then(sincronizado => {
+          if (sincronizado) {
+            console.log('JSON sincronizado con GitHub');
+          } else {
+            console.log('No se pudo sincronizar con GitHub');
+          }
+        });
+      }
     } catch (writeError) {
       console.error('❌ Error escribiendo archivo JSON:', writeError);
       throw writeError;
