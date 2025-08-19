@@ -5,6 +5,7 @@ const sharp = require('sharp');
 const cors = require('cors');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
+const cloudinary = require('cloudinary').v2;
 // Configurar variables de entorno básicas si no existe .env
 try {
   require('dotenv').config();
@@ -15,6 +16,18 @@ try {
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Configuración de Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'tu-cloud-name',
+  api_key: process.env.CLOUDINARY_API_KEY || 'tu-api-key',
+  api_secret: process.env.CLOUDINARY_API_SECRET || 'tu-api-secret'
+});
+
+console.log('Configurando Cloudinary con:', {
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'No configurado',
+  api_key: process.env.CLOUDINARY_API_KEY ? '***' + process.env.CLOUDINARY_API_KEY.slice(-4) : 'No configurado'
+});
 
 // Configuración de multer para subida de archivos
 const storage = multer.diskStorage({
@@ -91,6 +104,35 @@ if (fs.existsSync(publicPath)) {
 const thumbnailCache = new Map();
 
 // ===== FUNCIONES AUXILIARES =====
+
+// Función para subir archivo a Cloudinary
+async function subirArchivoACloudinary(filePath, carpeta = 'aledo-album') {
+  try {
+    console.log('☁️ Subiendo archivo a Cloudinary:', filePath);
+    
+    const resultado = await cloudinary.uploader.upload(filePath, {
+      folder: carpeta,
+      resource_type: 'auto',
+      transformation: [
+        { quality: 'auto:good' },
+        { fetch_format: 'auto' }
+      ]
+    });
+    
+    console.log('✅ Archivo subido a Cloudinary:', resultado.secure_url);
+    return {
+      url: resultado.secure_url,
+      public_id: resultado.public_id,
+      width: resultado.width,
+      height: resultado.height,
+      format: resultado.format,
+      bytes: resultado.bytes
+    };
+  } catch (error) {
+    console.error('❌ Error subiendo archivo a Cloudinary:', error);
+    throw error;
+  }
+}
 
 // Función para enviar email de notificación
 async function enviarEmailNotificacion(participacion) {
@@ -381,28 +423,44 @@ app.post('/api/participa', upload.array('fotos', 5), async (req, res) => {
       fs.mkdirSync(uploadsDir, { recursive: true });
     }
 
-    // Mover archivos a la carpeta uploads
+    // Subir archivos a Cloudinary
     const archivosGuardados = [];
     for (const file of req.files) {
-      const nuevoNombre = file.originalname; // Mantener nombre original
-      const nuevoPath = path.join(uploadsDir, nuevoNombre);
-      
-      // Mover archivo a uploads
-      fs.renameSync(file.path, nuevoPath);
-      
-      // Verificar si existe audio asociado
-      const nombreSinExt = path.parse(file.originalname).name;
-      const audioPath = path.join(__dirname, '../public/assets/audios', `${nombreSinExt}.mp3`);
-      const audioUrl = fs.existsSync(audioPath) ? `assets/audios/${nombreSinExt}.mp3` : null;
-      
-      archivosGuardados.push({
-        nombreOriginal: file.originalname,
-        nombreGuardado: nuevoNombre,
-        ruta: `uploads/${nuevoNombre}`,
-        tamaño: file.size,
-        tipo: file.mimetype,
-        audio: audioUrl
-      });
+      try {
+        console.log('📤 Procesando archivo:', file.originalname);
+        
+        // Subir archivo a Cloudinary
+        const cloudinaryResult = await subirArchivoACloudinary(file.path, `aledo-album/${participanteId}`);
+        
+        // Verificar si existe audio asociado
+        const nombreSinExt = path.parse(file.originalname).name;
+        const audioPath = path.join(__dirname, '../public/assets/audios', `${nombreSinExt}.mp3`);
+        const audioUrl = fs.existsSync(audioPath) ? `assets/audios/${nombreSinExt}.mp3` : null;
+        
+        archivosGuardados.push({
+          nombreOriginal: file.originalname,
+          nombreGuardado: file.originalname,
+          ruta: cloudinaryResult.url,
+          public_id: cloudinaryResult.public_id,
+          tamaño: cloudinaryResult.bytes,
+          tipo: file.mimetype,
+          width: cloudinaryResult.width,
+          height: cloudinaryResult.height,
+          audio: audioUrl
+        });
+        
+        // Eliminar archivo temporal
+        fs.unlinkSync(file.path);
+        console.log('🗑️ Archivo temporal eliminado:', file.path);
+        
+      } catch (error) {
+        console.error('❌ Error procesando archivo:', file.originalname, error);
+        // Eliminar archivo temporal en caso de error
+        if (fs.existsSync(file.path)) {
+          fs.unlinkSync(file.path);
+        }
+        throw error;
+      }
     }
 
     // Crear registro de la participación
