@@ -71,7 +71,21 @@ const transporter = nodemailer.createTransport({
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, '../public')));
+
+// Configurar archivos estáticos - intentar diferentes rutas para compatibilidad
+const publicPath = path.join(__dirname, '../public');
+const alternativePublicPath = path.join(__dirname, 'public');
+
+if (fs.existsSync(publicPath)) {
+  console.log('Sirviendo archivos estáticos desde:', publicPath);
+  app.use(express.static(publicPath));
+} else if (fs.existsSync(alternativePublicPath)) {
+  console.log('Sirviendo archivos estáticos desde:', alternativePublicPath);
+  app.use(express.static(alternativePublicPath));
+} else {
+  console.log('No se encontró la carpeta public, sirviendo desde:', __dirname);
+  app.use(express.static(__dirname));
+}
 
 // Cache para miniaturas
 const thumbnailCache = new Map();
@@ -150,7 +164,15 @@ async function enviarEmailConfirmacion(participacion) {
 // Función para generar miniaturas
 async function generarMiniatura(imagenPath, carpeta, nombreArchivo) {
   try {
-    const thumbnailDir = path.join(__dirname, '../public/assets/images/thumbnails', carpeta);
+    // Intentar diferentes rutas para compatibilidad
+    let thumbnailDir = path.join(__dirname, '../public/assets/images/thumbnails', carpeta);
+    if (!fs.existsSync(thumbnailDir)) {
+      thumbnailDir = path.join(__dirname, 'public/assets/images/thumbnails', carpeta);
+    }
+    if (!fs.existsSync(thumbnailDir)) {
+      thumbnailDir = path.join(__dirname, 'assets/images/thumbnails', carpeta);
+    }
+    
     if (!fs.existsSync(thumbnailDir)) {
       fs.mkdirSync(thumbnailDir, { recursive: true });
     }
@@ -774,4 +796,4 @@ process.on('SIGINT', () => {
     console.log('Servidor cerrado');
     process.exit(0);
   });
-}); 
+}); git 
