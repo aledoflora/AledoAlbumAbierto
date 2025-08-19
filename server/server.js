@@ -6,9 +6,7 @@ const cors = require('cors');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
 const cloudinary = require('cloudinary').v2;
-const { exec } = require('child_process');
-const util = require('util');
-const execAsync = util.promisify(exec);
+
 // Configurar variables de entorno básicas si no existe .env
 try {
   require('dotenv').config();
@@ -108,33 +106,7 @@ const thumbnailCache = new Map();
 
 // ===== FUNCIONES AUXILIARES =====
 
-// Función para sincronizar JSON con GitHub
-async function sincronizarConGitHub() {
-  try {
-    console.log('🔄 Sincronizando JSON con GitHub...');
-    
-    // Cambiar al directorio del proyecto
-    const projectDir = path.join(__dirname, '../..');
-    
-    // Agregar cambios
-    await execAsync('git add server/data/participaciones.json', { cwd: projectDir });
-    console.log('✅ Archivo agregado a Git');
-    
-    // Hacer commit
-    await execAsync('git commit -m "Actualizar participaciones - ' + new Date().toISOString() + '"', { cwd: projectDir });
-    console.log('✅ Commit realizado');
-    
-    // Hacer push
-    await execAsync('git push origin master', { cwd: projectDir });
-    console.log('✅ Push realizado a GitHub');
-    
-    console.log('✅ JSON sincronizado con GitHub correctamente');
-    return true;
-  } catch (error) {
-    console.error('❌ Error sincronizando con GitHub:', error.message);
-    return false;
-  }
-}
+
 
 // Función para subir archivo a Cloudinary
 async function subirArchivoACloudinary(filePath, carpeta = 'aledo-album') {
@@ -532,16 +504,7 @@ app.post('/api/participa', upload.array('fotos', 5), async (req, res) => {
       fs.writeFileSync(registrosPath, JSON.stringify(participaciones, null, 2));
       console.log('Participación guardada en JSON');
       
-      // Sincronizar con GitHub solo en desarrollo local
-      if (process.env.NODE_ENV === 'development') {
-        sincronizarConGitHub().then(sincronizado => {
-          if (sincronizado) {
-            console.log('JSON sincronizado con GitHub');
-          } else {
-            console.log('No se pudo sincronizar con GitHub');
-          }
-        });
-      }
+
     } catch (writeError) {
       console.error('❌ Error escribiendo archivo JSON:', writeError);
       throw writeError;
@@ -583,6 +546,74 @@ app.post('/api/participa', upload.array('fotos', 5), async (req, res) => {
 // Test del servidor
 app.get('/api/test', (req, res) => {
   res.json({ success: true, message: 'Servidor funcionando correctamente' });
+});
+
+// Ruta para obtener todas las participaciones (ADMIN)
+app.get('/api/admin/participaciones', (req, res) => {
+  try {
+    const registrosPath = path.join(__dirname, 'data', 'participaciones.json');
+    if (fs.existsSync(registrosPath)) {
+      const participaciones = JSON.parse(fs.readFileSync(registrosPath, 'utf8'));
+      res.json({
+        success: true,
+        total: participaciones.length,
+        participaciones: participaciones
+      });
+    } else {
+      res.json({
+        success: true,
+        total: 0,
+        participaciones: []
+      });
+    }
+  } catch (error) {
+    console.error('Error leyendo participaciones:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al leer participaciones'
+    });
+  }
+});
+
+// Ruta para eliminar una participación (ADMIN)
+app.delete('/api/admin/participaciones/:id', (req, res) => {
+  try {
+    const participacionId = req.params.id;
+    const registrosPath = path.join(__dirname, 'data', 'participaciones.json');
+    
+    if (fs.existsSync(registrosPath)) {
+      let participaciones = JSON.parse(fs.readFileSync(registrosPath, 'utf8'));
+      const participacionIndex = participaciones.findIndex(p => p.id === participacionId);
+      
+      if (participacionIndex !== -1) {
+        const participacionEliminada = participaciones.splice(participacionIndex, 1)[0];
+        fs.writeFileSync(registrosPath, JSON.stringify(participaciones, null, 2));
+        
+        console.log(`Participación eliminada: ${participacionId}`);
+        res.json({
+          success: true,
+          message: 'Participación eliminada correctamente',
+          participacionEliminada: participacionEliminada
+        });
+      } else {
+        res.status(404).json({
+          success: false,
+          message: 'Participación no encontrada'
+        });
+      }
+    } else {
+      res.status(404).json({
+        success: false,
+        message: 'No hay participaciones registradas'
+      });
+    }
+  } catch (error) {
+    console.error('Error eliminando participación:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al eliminar participación'
+    });
+  }
 });
 
 // Obtener carpetas principales

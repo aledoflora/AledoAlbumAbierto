@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración - Aledo Album Abierto</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .participaciones {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .participacion {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #28a745;
+        }
+
+        .participacion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .participacion-info h3 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .participacion-meta {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .participacion-files {
+            margin-top: 15px;
+        }
+
+        .file-item {
+            background: #f1f3f4;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-link {
+            color: #667eea;
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .file-link:hover {
+            text-decoration: underline;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .refresh-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+
+        .refresh-btn:hover {
+            background: #5a6fd8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Administración</h1>
+            <p>Gestión de participaciones - Aledo Album Abierto</p>
+        </div>
+
+        <div class="content">
+            <button class="refresh-btn" onclick="cargarParticipaciones()">🔄 Actualizar</button>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalParticipaciones">-</div>
+                    <div class="stat-label">Total Participaciones</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalArchivos">-</div>
+                    <div class="stat-label">Total Archivos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="ultimaParticipacion">-</div>
+                    <div class="stat-label">Última Participación</div>
+                </div>
+            </div>
+
+            <div class="participaciones">
+                <h2>Participaciones Recientes</h2>
+                <div id="participacionesList">
+                    <div class="loading">Cargando participaciones...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cargar participaciones al iniciar
+        document.addEventListener('DOMContentLoaded', cargarParticipaciones);
+
+        async function cargarParticipaciones() {
+            try {
+                const serverUrl = window.location.origin;
+                const response = await fetch(`${serverUrl}/api/admin/participaciones`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    mostrarParticipaciones(data.participaciones);
+                    actualizarEstadisticas(data.participaciones);
+                } else {
+                    throw new Error('Error al cargar participaciones');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('participacionesList').innerHTML = 
+                    '<div class="error">Error al cargar las participaciones: ' + error.message + '</div>';
+            }
+        }
+
+        function mostrarParticipaciones(participaciones) {
+            const container = document.getElementById('participacionesList');
+            
+            if (participaciones.length === 0) {
+                container.innerHTML = '<div class="empty-state">No hay participaciones registradas</div>';
+                return;
+            }
+
+            // Ordenar por fecha (más recientes primero)
+            participaciones.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+            container.innerHTML = participaciones.map(participacion => `
+                <div class="participacion">
+                    <div class="participacion-header">
+                        <div class="participacion-info">
+                            <h3>${participacion.nombre}</h3>
+                            <div class="participacion-meta">
+                                <strong>Email:</strong> ${participacion.email} | 
+                                <strong>Fecha:</strong> ${new Date(participacion.fecha).toLocaleString('es-ES')} | 
+                                <strong>ID:</strong> ${participacion.id}
+                            </div>
+                        </div>
+                        <button class="delete-btn" onclick="eliminarParticipacion('${participacion.id}')">
+                            Eliminar
+                        </button>
+                    </div>
+                    
+                    ${participacion.descripcion ? `<p><strong>Descripción:</strong> ${participacion.descripcion}</p>` : ''}
+                    
+                    <div class="participacion-files">
+                        <h4>Archivos (${participacion.archivos.length}):</h4>
+                        ${participacion.archivos.map(archivo => `
+                            <div class="file-item">
+                                <a href="${archivo.ruta}" target="_blank" class="file-link">
+                                    ${archivo.nombreOriginal}
+                                </a>
+                                <span>${(archivo.tamaño / 1024 / 1024).toFixed(2)} MB</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function actualizarEstadisticas(participaciones) {
+            document.getElementById('totalParticipaciones').textContent = participaciones.length;
+            
+            const totalArchivos = participaciones.reduce((total, p) => total + p.archivos.length, 0);
+            document.getElementById('totalArchivos').textContent = totalArchivos;
+            
+            if (participaciones.length > 0) {
+                const ultima = new Date(participaciones[0].fecha);
+                document.getElementById('ultimaParticipacion').textContent = ultima.toLocaleDateString('es-ES');
+            } else {
+                document.getElementById('ultimaParticipacion').textContent = 'N/A';
+            }
+        }
+
+        async function eliminarParticipacion(id) {
+            if (!confirm('¿Estás seguro de que quieres eliminar esta participación?')) {
+                return;
+            }
+
+            try {
+                const serverUrl = window.location.origin;
+                const response = await fetch(`${serverUrl}/api/admin/participaciones/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('Participación eliminada correctamente');
+                    cargarParticipaciones(); // Recargar lista
+                } else {
+                    throw new Error('Error al eliminar participación');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al eliminar la participación: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
